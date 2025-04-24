@@ -1,45 +1,59 @@
 # 🛒 Shopify Order Barcode Validator – Chrome Extension
 
-This Chrome Extension enhances order accuracy during the Shopify shipping label purchase process by **requiring barcode scans of each ordered item before allowing a label to be purchased**. It provides a seamless, Shopify-styled UI directly within the admin panel.
+This Chrome Extension improves Shopify order fulfillment by requiring barcode validation before allowing a shipping label to be purchased. It injects a Shopify-style UI into the shipping label page and ensures all ordered items are correctly scanned before enabling the “Buy shipping label” button.
 
 ---
 
 ## ✅ What It Does
 
-- Extracts the list of ordered products (title and quantity) from the Shopify shipping label creation page.
-- Fetches product variant data including barcodes from your backend.
-- Matches scanned barcodes against ordered products.
-- Displays a real-time progress list (e.g., `1/2 × Apple Watch`).
-- Disables the “Buy shipping label” button until all items are confirmed scanned.
-- Uses color-coded icons and backgrounds to show verification status.
-- Automatically reinjects itself on Shopify's SPA page changes.
+- Extracts product titles and quantities directly from the shipping label page
+- Fetches your product barcode data from a backend API
+- Displays real-time scan progress (e.g., “1/2 × Apple Watch”)
+- Blocks the "Buy shipping label" button until all required items are scanned
+- Shows visual success/failure status with green/red color indicators
+- Automatically reinjects itself when navigating between pages (SPA support)
 - Only activates on URLs like:  
-  `https://admin.shopify.com/store/.../shipping_labels/purchase/...`
+  https://admin.shopify.com/store/.../shipping_labels/purchase/...
 
 ---
 
-## 🔒 Why It's Useful
+## 🛠 Requirements
 
-Shopify does not natively verify order fulfillment with barcodes, which can lead to:
-- Shipping incorrect items
-- Incomplete fulfillment
-- Errors caused by manual packing
-
-This extension introduces a lightweight but effective validation step to ensure all items are correctly scanned before shipping.
+- A backend API that returns your product list with `title` and `barcode`
+- A barcode scanner (or manual entry of barcodes)
+- Chrome browser with Developer Mode enabled
 
 ---
 
 ## 🚀 Technologies Used
 
 - Vanilla JavaScript
-- Shadow DOM for encapsulated UI injection
-- Shopify Polaris-inspired styling
-- SPA detection via MutationObserver + setInterval
-- Backend API integration for barcode lookups
+- Shadow DOM for isolated component injection
+- Shopify Polaris-inspired UI/UX
+- setInterval polling for SPA page change detection
+- REST API integration for product data
 
 ---
 
-## 🛠 Requirements
+## ▶️ How to Use
 
-- A backend API route returning product variants with `title` and `barcode`.
-- A barcode scanner or manual barcode input during packing.
+1. Download or clone this repository.
+2. Open Google Chrome and visit `chrome://extensions/`.
+3. Enable **Developer Mode** using the top-right toggle.
+4. Click **“Load unpacked”** and select the extension folder.
+5. Visit any Shopify order shipping label page.
+6. A scanner panel will appear in the lower-right corner.
+7. Start scanning product barcodes:
+   - Shows current scan count and required quantity
+   - Prevents scanning of unlisted or excess items
+   - Blocks the "Buy shipping label" button until complete
+   - Turns green with a ✅ when all items are scanned correctly
+
+---
+
+## 📁 Project Structure
+
+- `content.js` — main script that injects and controls the scanner UI
+- `manifest.json` — Chrome extension manifest
+- `icon128.png` — extension icon
+- `README.md` — this file
