@@ -129,7 +129,7 @@ const injectScannerIfNeeded = async () => {
   box.className = "verifier-box";
   box.innerHTML = `
     <h3>Scan Products</h3>
-    <input id="barcodeInput" placeholder="Scan barcode and press Enter" />
+    <input id="barcodeInput" placeholder="Scan barcode" />
     <div id="productList"></div>
     <div id="checkIcon" class="check-icon" style="display: none;">✅</div>
   `;
