@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Shopify Order Scanner",
+  "version": "1.0",
+  "description": "Verify scanned products before fulfilling Shopify orders.",
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["https://admin.shopify.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icon128.png",
+    "48": "icon128.png",
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_icon": "icon128.png",
+    "default_title": "Scan Shopify Products"
+  }
+}
