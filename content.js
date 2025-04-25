@@ -4,7 +4,11 @@ const injectScannerIfNeeded = async () => {
 
   const API_URL = "https://shopify-inv-tracker-backend-d0b1c1125141.herokuapp.com/api";
 
-  // 🕓 Wait until Shopify finishes rendering the product info
+  // 🔊 Use local sound files
+  const SOUND_SUCCESS = new Audio(chrome.runtime.getURL("sounds/success.mp3"));
+  const SOUND_ERROR = new Audio(chrome.runtime.getURL("sounds/error.mp3"));
+  const SOUND_COMPLETE = new Audio(chrome.runtime.getURL("sounds/complete.mp3"));
+
   await new Promise(resolve => {
     const check = setInterval(() => {
       const thumbs = document.querySelectorAll(".Polaris-Thumbnail img");
@@ -15,7 +19,6 @@ const injectScannerIfNeeded = async () => {
     }, 300);
   });
 
-  // 🟡 Step 1: Scrape ordered items from DOM
   const productGrids = [...document.querySelectorAll("div.Polaris-InlineGrid")].filter(grid =>
     grid.querySelector(".Polaris-Thumbnail") &&
     grid.querySelector("a[href*='/products/']") &&
@@ -30,7 +33,6 @@ const injectScannerIfNeeded = async () => {
 
   console.log("🟡 Ordered Items (Scraped):", orderedItems);
 
-  // 🟣 Step 2: Fetch barcode list from backend
   let variants = [];
   try {
     const res = await fetch(`${API_URL}/products-for-inventorycount`);
@@ -41,7 +43,6 @@ const injectScannerIfNeeded = async () => {
     return;
   }
 
-  // ✅ Step 3: Match ordered items to backend barcodes
   const matched = orderedItems.map(item => {
     const match = variants.find(v =>
       v.title.toLowerCase().includes(item.title.toLowerCase()) ||
@@ -58,7 +59,6 @@ const injectScannerIfNeeded = async () => {
 
   console.log("✅ Matched Items:", matched);
 
-  // 💠 Step 4: Inject scanner UI
   const wrapper = document.createElement("div");
   wrapper.id = "shopify-scanner-wrapper";
   wrapper.style.position = "fixed";
@@ -71,14 +71,13 @@ const injectScannerIfNeeded = async () => {
   const style = document.createElement("style");
   style.textContent = `
     .verifier-box {
-      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       border-radius: 12px;
       border: 1px solid #dfe3e8;
       width: 360px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       padding: 16px;
       background-color: #fef3f2;
-      transition: background 0.3s ease, border-color 0.3s ease;
     }
     .verifier-box.complete {
       background-color: #edfdf4;
@@ -91,7 +90,6 @@ const injectScannerIfNeeded = async () => {
       color: #212b36;
     }
     input {
-      box-sizing: border-box;
       width: 100%;
       padding: 10px 12px;
       font-size: 14px;
@@ -103,7 +101,6 @@ const injectScannerIfNeeded = async () => {
     .product {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       font-size: 13px;
       padding: 6px 0;
       color: #212b36;
@@ -129,7 +126,7 @@ const injectScannerIfNeeded = async () => {
   box.className = "verifier-box";
   box.innerHTML = `
     <h3>Scan Products</h3>
-    <input id="barcodeInput" placeholder="Scan barcode" />
+    <input id="barcodeInput" placeholder="Scan barcode and press Enter" />
     <div id="productList"></div>
     <div id="checkIcon" class="check-icon" style="display: none;">✅</div>
   `;
@@ -162,6 +159,7 @@ const injectScannerIfNeeded = async () => {
     if (allMatched) {
       boxEl.classList.add("complete");
       checkIcon.style.display = "block";
+      SOUND_COMPLETE.play();
     } else {
       boxEl.classList.remove("complete");
       checkIcon.style.display = "none";
@@ -175,6 +173,7 @@ const injectScannerIfNeeded = async () => {
 
       const match = matched.find(m => m.barcode === code);
       if (!match) {
+        SOUND_ERROR.play();
         alert("❌ Barcode not found in this order.");
         return;
       }
@@ -185,6 +184,7 @@ const injectScannerIfNeeded = async () => {
       }
 
       match.scanned += 1;
+      SOUND_SUCCESS.play();
       updateUI();
     }
   });
@@ -192,7 +192,7 @@ const injectScannerIfNeeded = async () => {
   updateUI();
 };
 
-// 🔁 Shopify SPA support: re-run on URL change
+// SPA Support
 let lastURL = location.href;
 setInterval(() => {
   const currentURL = location.href;
