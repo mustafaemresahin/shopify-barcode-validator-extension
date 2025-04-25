@@ -10,6 +10,12 @@
       "js": ["content.js"]
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sounds/*.mp3"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "icons": {
     "16": "icon128.png",
     "48": "icon128.png",
